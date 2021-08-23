@@ -252,7 +252,7 @@ footer();
 
 doc.addPage();
 positionTop = paddingTop;
-drawMargins();
+// drawMargins();
 
 
 function getTag(data, left){
@@ -354,17 +354,73 @@ function printPictures(){
         top: getPositionTop(18),
     });
 
+    const maxWidth = 560;
+
+    function resize(image){
+        let width = image.width;
+        let height = image.height;
+
+        if(image.width > maxWidth){
+            const ratio = width / height;
+            height = maxWidth/ratio
+            width =  maxWidth // Set new width
+        }
+
+        return {
+            ...image,
+            width,
+            height
+        }
+    }
+
     const images = [
         {image: "image1.jpg", width: 750, height: 500},
         {image: "image2.jpg", width: 1726, height: 882},
         {image: "image3.png", width: 1204, height: 600},
         {image: "image4.jpg", width: 1024, height: 765},
         {image: "image5.jpg", width: 524, height: 532},
+        {image: "image6.jpg", width: 524, height: 532},
+        {image: "image3.png", width: 1204, height: 600},
+        {image: "image4.jpg", width: 1024, height: 765},
         {image: "image5.jpg", width: 524, height: 532},
     ];
 
-    images.forEach(image=>{
-        doc.addImage(`./casa/${image.image}`, getPositionRight(paddingLeft), getPositionTop(paddingTop), image.width, image.height);
+    let topCol1 = getPositionTop(15);
+    let topCol2 = getPositionTop();
+    const leftCol2 = maxWidth + 100;
+
+    images.forEach((image, index)=>{
+        image = resize(image);
+        const col = index % 2 == 0 ? 1 : 2;
+
+        if(col == 1){
+            doc.addImage(
+                `./casa/${image.image}`, 
+                getPositionRight(), 
+                topCol1, 
+                image.width, 
+                image.height);
+
+            topCol1 += image.height+20;
+        }else{
+            doc.addImage(
+                `./casa/${image.image}`, 
+                leftCol2, 
+                topCol2, 
+                image.width, 
+                image.height);
+            topCol2 += image.height+20;
+        }
+
+        const nextTop = index % 2 == 0 ? topCol2 : topCol1;
+
+        if(calculateIfNextPage(image.height, nextTop)){            
+            footer();
+            doc.addPage();
+            topCol1 = paddingTop;
+            topCol2 = paddingTop;
+        }
+
     });
 
 
